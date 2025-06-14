@@ -11,8 +11,11 @@ require (
 )
 
 require (
+	github.com/cenk/backoff v2.2.1+incompatible // indirect
+	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/rubyist/circuitbreaker v2.2.1+incompatible // indirect
 )
 
 require (
