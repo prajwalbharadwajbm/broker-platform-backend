@@ -25,5 +25,8 @@ func Routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodPost, "/api/v1/holdings", middleware.AuthMiddleware(handlers.AddHolding))
 	router.HandlerFunc(http.MethodGet, "/api/v1/holdings", middleware.AuthMiddleware(handlers.GetHoldings))
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/orderbook", middleware.AuthMiddleware(handlers.GetOrderbook))
+	router.HandlerFunc(http.MethodGet, "/api/v1/positions", middleware.AuthMiddleware(handlers.GetPositions))
+
 	return router
 }
