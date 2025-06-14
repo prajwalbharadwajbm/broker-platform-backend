@@ -5,6 +5,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/prajwalbharadwajbm/broker/internal/handlers"
+	"github.com/prajwalbharadwajbm/broker/internal/middleware"
 )
 
 func Routes() *httprouter.Router {
@@ -19,6 +20,10 @@ func Routes() *httprouter.Router {
 	// Token refresh endpoints (no auth required)
 	router.HandlerFunc(http.MethodPost, "/api/v1/auth/refresh", handlers.RefreshToken)
 	router.HandlerFunc(http.MethodPost, "/api/v1/auth/revoke", handlers.RevokeRefreshToken) // Logout
+
+	// authenticated endpoints
+	router.HandlerFunc(http.MethodPost, "/api/v1/holdings", middleware.AuthMiddleware(handlers.AddHolding))
+	router.HandlerFunc(http.MethodGet, "/api/v1/holdings", middleware.AuthMiddleware(handlers.GetHoldings))
 
 	return router
 }
