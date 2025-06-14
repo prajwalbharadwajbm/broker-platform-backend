@@ -2,16 +2,19 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/prajwalbharadwajbm/broker/internal/db"
 	"github.com/prajwalbharadwajbm/broker/internal/db/models"
+	"github.com/prajwalbharadwajbm/broker/internal/logger"
+	circuit "github.com/rubyist/circuitbreaker"
 )
 
 // GetUserPositions retrieves all positions for a user for PNL calculation
 func GetUserPositions(ctx context.Context, userID uuid.UUID) ([]models.Position, error) {
-	db := db.GetClient()
+	db := db.GetProtectedClient()
 
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -22,6 +25,10 @@ func GetUserPositions(ctx context.Context, userID uuid.UUID) ([]models.Position,
 
 	rows, err := db.QueryContext(dbCtx, query, userID)
 	if err != nil {
+		if err == circuit.ErrBreakerOpen {
+			logger.Log.Error("Positions lookup blocked by circuit breaker", err)
+			return nil, errors.New("database service temporarily unavailable")
+		}
 		return nil, err
 	}
 	defer rows.Close()

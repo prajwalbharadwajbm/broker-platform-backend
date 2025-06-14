@@ -2,15 +2,18 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/prajwalbharadwajbm/broker/internal/db"
 	"github.com/prajwalbharadwajbm/broker/internal/db/models"
+	"github.com/prajwalbharadwajbm/broker/internal/logger"
+	circuit "github.com/rubyist/circuitbreaker"
 )
 
 // GetOrderbookEntries retrieves all orderbook entries
 func GetOrderbookEntries(ctx context.Context) ([]models.OrderbookEntry, error) {
-	db := db.GetClient()
+	db := db.GetProtectedClient()
 
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -23,6 +26,10 @@ func GetOrderbookEntries(ctx context.Context) ([]models.OrderbookEntry, error) {
 
 	rows, err := db.QueryContext(dbCtx, query)
 	if err != nil {
+		if err == circuit.ErrBreakerOpen {
+			logger.Log.Error("Orderbook lookup blocked by circuit breaker", err)
+			return nil, errors.New("database service temporarily unavailable")
+		}
 		return nil, err
 	}
 	defer rows.Close()
@@ -47,7 +54,7 @@ func GetOrderbookEntries(ctx context.Context) ([]models.OrderbookEntry, error) {
 
 // GetOrderbookEntriesBySymbol retrieves orderbook entries for a specific symbol
 func GetOrderbookEntriesBySymbol(ctx context.Context, symbol string) ([]models.OrderbookEntry, error) {
-	db := db.GetClient()
+	db := db.GetProtectedClient()
 
 	dbCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -61,6 +68,10 @@ func GetOrderbookEntriesBySymbol(ctx context.Context, symbol string) ([]models.O
 
 	rows, err := db.QueryContext(dbCtx, query, symbol)
 	if err != nil {
+		if err == circuit.ErrBreakerOpen {
+			logger.Log.Error("Orderbook lookup blocked by circuit breaker", err)
+			return nil, errors.New("database service temporarily unavailable")
+		}
 		return nil, err
 	}
 	defer rows.Close()
