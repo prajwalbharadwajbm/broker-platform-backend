@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -39,6 +40,9 @@ func FetchDataFromRequestBody[T any](request *http.Request) (T, error) {
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return data, fmt.Errorf("unable to read request body: %w", err)
+	}
+	if len(bytes.TrimSpace(body)) == 0 {
+		return data, nil
 	}
 	defer request.Body.Close()
 
