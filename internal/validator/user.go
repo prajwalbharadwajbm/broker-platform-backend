@@ -2,16 +2,16 @@ package validator
 
 import (
 	"errors"
-	"strings"
+	"net/mail"
 )
 
+// TODO: Need better validation for email, custom regex may be needed
 func IsValidEmail(email string) (bool, error) {
-	if !strings.Contains(email, "@") {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
 		return false, errors.New("BPB002")
 	}
-
 	return true, nil
-
 }
 
 func IsValidPassword(username, password string) (bool, error) {
