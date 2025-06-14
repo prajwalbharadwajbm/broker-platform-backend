@@ -15,9 +15,9 @@ type PNLCalculator interface {
 	CalculateOrderbookPNL(positions []models.Position) PNL
 
 	// TODO: Implement these methods if needed in the future
-	CalculatePositionPNL(position models.Position) (unrealized, realized float64)
-	CalculateUnrealizedPNL(entryPrice, currentPrice, quantity float64, positionType string) float64
-	CalculateRealizedPNL(realizedPNL float64) float64
+	// CalculatePositionPNL(position models.Position) (unrealized, realized float64)
+	//CalculateUnrealizedPNL(entryPrice, currentPrice, quantity float64, positionType string) float64
+	//CalculateRealizedPNL(realizedPNL float64) float64
 }
 
 // Service implements PNLCalculator interface
