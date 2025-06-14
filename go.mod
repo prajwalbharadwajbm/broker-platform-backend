@@ -7,6 +7,7 @@ toolchain go1.23.10
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/rubyist/circuitbreaker v2.2.1+incompatible
 	golang.org/x/crypto v0.39.0
 )
 
@@ -15,7 +16,7 @@ require (
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/rubyist/circuitbreaker v2.2.1+incompatible // indirect
+	github.com/peterbourgon/g2s v0.0.0-20170223122336-d4e7ad98afea // indirect
 )
 
 require (
