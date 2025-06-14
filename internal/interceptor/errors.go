@@ -10,4 +10,7 @@ var errors = map[string]string{
 	"BPB007": "User not found",
 	"BPB008": "Invalid username or password",
 	"BPB009": "Unable to generate token",
+	"BPB010": "Refresh token is required",
+	"BPB011": "Unable to process refresh token",
+	"BPB012": "Invalid or expired refresh token",
 }

@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -11,6 +13,11 @@ import (
 type Claims struct {
 	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
+}
+
+type TokenPair struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 func GenerateToken(userId string) (string, error) {
@@ -38,6 +45,39 @@ func GenerateToken(userId string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+// GenerateTokenPair creates both access and refresh tokens
+func GenerateTokenPair(userId string) (*TokenPair, error) {
+	accessToken, err := GenerateToken(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := GenerateRefreshToken()
+	if err != nil {
+		return nil, err
+	}
+
+	return &TokenPair{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+// GenerateRefreshToken creates a cryptographically secure random refresh token
+func GenerateRefreshToken() (string, error) {
+	bytes := make([]byte, 32) // 256-bit (32 bytes) token
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes), nil
+}
+
+// GetRefreshTokenExpiration returns the expiration time for refresh tokens (7 days) in UTC
+func GetRefreshTokenExpiration() time.Time {
+	// TODO: make it configurable
+	return time.Now().UTC().Add(7 * 24 * time.Hour)
 }
 
 func ValidateToken(tokenString string) (*Claims, error) {

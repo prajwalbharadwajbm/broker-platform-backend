@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/prajwalbharadwajbm/broker/internal/db/repository"
 	"github.com/prajwalbharadwajbm/broker/internal/dtos"
 	"github.com/prajwalbharadwajbm/broker/internal/interceptor"
@@ -40,16 +41,37 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	token, err := auth.GenerateToken(userId)
+
+	// Generate both access and refresh tokens
+	tokenPair, err := auth.GenerateTokenPair(userId)
 	if err != nil {
-		logger.Log.Error("failed to generate token", err)
+		logger.Log.Error("failed to generate token pair", err)
+		interceptor.SendErrorResponse(w, "BPB009", http.StatusInternalServerError)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userId)
+	if err != nil {
+		logger.Log.Error("failed to parse user ID", err)
+		interceptor.SendErrorResponse(w, "BPB009", http.StatusInternalServerError)
+		return
+	}
+
+	// Store refresh token in database
+	refreshTokenExpiry := auth.GetRefreshTokenExpiration()
+	_, err = repository.CreateRefreshToken(ctx, userUUID, tokenPair.RefreshToken, refreshTokenExpiry)
+	if err != nil {
+		logger.Log.Error("failed to store refresh token", err)
 		interceptor.SendErrorResponse(w, "BPB009", http.StatusInternalServerError)
 		return
 	}
 
 	response := map[string]interface{}{
-		"token":   token,
-		"user_id": userId,
+		"access_token":  tokenPair.AccessToken,
+		"refresh_token": tokenPair.RefreshToken,
+		"token_type":    "Bearer",
+		"expires_in":    900, // access token expires in 15 minutes in seconds
+		"user_id":       userId,
 	}
 	logger.Log.Infof("Successfully logged in user_id: %s", userId)
 	interceptor.SendSuccessResponse(w, response, http.StatusOK)
