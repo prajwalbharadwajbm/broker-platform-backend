@@ -14,6 +14,7 @@ func Routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodPost, "/api/v1/users/signup", handlers.Signup)
 
 	// authenticated endpoints
+	router.HandlerFunc(http.MethodPost, "/api/v1/users/login", handlers.Login)
 
 	return router
 }
