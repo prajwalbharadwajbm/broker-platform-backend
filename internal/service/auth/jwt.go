@@ -15,7 +15,7 @@ type Claims struct {
 
 func GenerateToken(userId string) (string, error) {
 	// Access tokens should have a 10-minute validity.
-	expirationTime := time.Now().Add(1 * time.Minute)
+	expirationTime := time.Now().Add(10 * time.Minute)
 
 	claims := &Claims{
 		UserID: userId,
