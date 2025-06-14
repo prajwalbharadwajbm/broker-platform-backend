@@ -13,4 +13,5 @@ var errors = map[string]string{
 	"BPB010": "Refresh token is required",
 	"BPB011": "Unable to process refresh token",
 	"BPB012": "Invalid or expired refresh token",
+	"BPB500": "Internal Server Error",
 }

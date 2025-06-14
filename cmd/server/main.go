@@ -9,6 +9,7 @@ import (
 	"github.com/prajwalbharadwajbm/broker/internal/config"
 	"github.com/prajwalbharadwajbm/broker/internal/db"
 	"github.com/prajwalbharadwajbm/broker/internal/logger"
+	"github.com/prajwalbharadwajbm/broker/internal/middleware"
 	"github.com/prajwalbharadwajbm/broker/internal/service/auth"
 )
 
@@ -38,9 +39,13 @@ func main() {
 	// cleanup expired refresh tokens
 	go auth.StartTokenCleanupService(ctx)
 
+	router := Routes()
+	// Wrap router with recovery middleware with global recovery handler
+	handler := middleware.RecoveryMiddleware(router)
+
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", config.AppConfigInstance.GeneralConfig.Port),
-		Handler:      Routes(),
+		Handler:      handler,
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  120 * time.Second,
