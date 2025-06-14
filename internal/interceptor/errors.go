@@ -1,5 +1,6 @@
 package interceptor
 
+// TODO: Structure it better with user friendly messages
 var errors = map[string]string{
 	"BPB001": "Bad Request",
 	"BPB002": "Invalid Email",
