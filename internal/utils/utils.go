@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 )
@@ -27,4 +31,20 @@ func GetEnv[T any](key string, fallback T) T {
 		}
 	}
 	return fallback
+}
+
+func FetchDataFromRequestBody[T any](request *http.Request) (T, error) {
+	var data T
+
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		return data, fmt.Errorf("unable to read request body: %w", err)
+	}
+	defer request.Body.Close()
+
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return data, fmt.Errorf("unable to unmarshal request body: %w", err)
+	}
+	return data, nil
 }
