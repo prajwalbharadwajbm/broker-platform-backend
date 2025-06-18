@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/prajwalbharadwajbm/broker/internal/interceptor"
 	"github.com/prajwalbharadwajbm/broker/internal/logger"
@@ -12,6 +13,8 @@ import (
 
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			logger.Log.Info("missing authorization header")
@@ -44,5 +47,10 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		ctx := context.WithValue(r.Context(), "userId", claims.UserID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
+
+		duration := time.Since(start)
+		// Adding Audit Log
+		logger.Log.Info("Authenticated request - Method: %s, Path: %s, UserID: %s, Latency: %v",
+			r.Method, r.URL.Path, claims.UserID, duration)
 	}
 }
